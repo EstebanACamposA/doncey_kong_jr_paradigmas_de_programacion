@@ -1,0 +1,158 @@
+// Calculates a - b
+Vector2D Vector2DDifference(Vector2D a, Vector2D b)
+{
+	return new Vector2D(a.x - b.x, a.y - b.y)
+}
+
+// Calculates the square of the magnitude of (a - b)
+int Vector2DSquareDistance(Vector2D a, Vector2D b)
+{
+	vector_difference = VectorDifference(a, b)
+	return (vector_difference.x*vector_difference.x) + (vector_difference.y*vector_difference.y)
+}
+
+Class Vector2D(x, y)
+	int x;
+	int y;
+	
+
+
+------------------------------------------------------------------------------------------
+Class Entity
+	int x;				// (x,y) is the top left corner of the entity
+	int y;
+
+	int height;			// height and width are used to correctly position the entity when entering a structure
+	int width;			// and to determine collisions
+
+	int direction;		// 0, 1, 2, 3 for right, up, left, down
+						// The direction is used for snapjaw movement and for Junior's EnterStructure method when entering a vine.
+						// Direction is used for drawing entities
+
+	int ground_speed;	// Speed on the ground.
+	int ascend_speed;	// Speed when ascending vines.
+	int descend_speed;	// Speed when descending vines. Positive value.
+
+	int fall_speed;		// Max falling speed. Junior's jumping is a separate mechanic
+						// Positive value.
+						// fall_speed is mainly used by blue snapjaws and fruits.
+
+	SceneStructure current_structure;	// This is used by snapjaws and Junior to identify the end of a vine or platform.
+	
+
+	// Adjusts the entity's position to the given structure
+	void EnterStructure(SceneStructure structure)	// Junior overrides this method so that he climbs vines from the sides
+	{
+		if (structure.is_vine)
+		{
+			this.x = structure.right_limit - width/2	// right and left limits should be the same for vines.
+		}
+		else
+		{
+			this.y = structure.top_limit + height		// If it's a floor, the entity must stand on it.
+		}
+	}
+
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------------
+Class SceneStructure
+	int right_limit;
+	int left_limit;
+	int top_limit;
+	int bottom_limit;
+
+	int id;				// The ID is used so that snapjaws can avoid going to the SceneStructure they are already in.
+
+	is_vine;			// If this is false, the structure is floor, if it's true, it's a vine.
+
+
+------------------------------------------------------------------------------------------
+Snapjaws
+// There is a list of snapjaw_intersections that controls the points at which snapjaws can make turns.
+is_falling = false	// NO PRIMITIVE TYPES. ??????
+
+Class Snapjaw inherits from Entity.
+
+	void IntersectionEvent(SnapjawIntersection, intersection)
+	{
+		int chosen_structure_index = random(intersection.intersecting_scene_structures.size)
+		this.EnterStructure(intersecting_scene_structures[chosen_structure_index])
+	}
+
+	// The snapjaw keeps falling instead of making other movement once is_falling becomes true. 
+	int Fall()
+	{
+		this.y += fall_speed
+	}
+	
+	// Makes the Snapjaw advance in its current direction.
+	// Returns the final position.
+	// Uses SnapjawIntersections and turns direction or enters falling state if the snapjaw reaches the end of a platform or vine, respectively.
+	int Move()
+	{
+		if (is_falling)
+		{
+			return this.Fall
+		}
+		
+		switch (this.direction)
+		{
+			case 0:
+				this.x += this.ground_speed 
+				break;
+			case 1:
+				this.y -= this.ascend_speed
+				break;
+			case 2:
+				this.x -= this.ground_speed
+				break;
+			case 3:
+				this.y += descend_speed
+				break;
+			default:
+				print("invalid direction in Move() method")
+		}
+
+		// Check for snapjaw_intersections
+	}
+	
+	
+
+						////////////////// UNUSED //////////////////	simplify snapjaws to only move through vines.
+// SnapjawIntersections are points at which snapjaws can change the SceneStructure they are moving through.
+// Intersections only connect two structures?
+// Intersections can be made one-way if only one structure is listed in intersecting_scene_structures
+Class SnapjawIntersection
+	int x;
+	int y;
+	List<SceneStructure> intersecting_scene_structures;	// A list of the connected structures. Snapjaws can go to any structure of this list
+						////////////////// UNUSED //////////////////	
+
+
+
+
+
+
+------------------------------------------------------------------------------------------
+Menu de instanciacion de frutas y snapjaws.
+Se crean con comandos como
+	[partida]
+		El indice de la instancia de juego en el que aparecera
+	[liana]
+		Las lianas tienen un ID
+	snapjaw [partida] [liana] [color]
+	snapjaw 1 6 0
+	snapjaw 0 1 1
+
+------------------------------------------------------------------------------------------
+Sprite sizes
+	Snapjaw
+		Image size: 	16x16
+		Entity size:	14x13
