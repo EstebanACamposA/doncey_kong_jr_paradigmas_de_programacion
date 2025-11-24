@@ -29,6 +29,8 @@ public abstract class Entity
     public SceneStructure current_structure;    // The structure the entity is currently moving through.
                                                 // This is used to determine if the entity has fallen off a ledge or down of a vine.
 
+    Boolean is_out_of_bounds = false;           // Used to tell the Game loop that this entity should be cleared.
+
     // public Entity(Integer x, Integer y, Integer id, Integer height, Integer width,
     //               Integer direction, Integer ground_speed, Integer ascend_speed,
     //               Integer descend_speed, Integer fall_speed, SceneStructure current_structure) {

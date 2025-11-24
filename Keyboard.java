@@ -7,6 +7,7 @@ public class Keyboard implements KeyListener {
     public static boolean a = false;
     public static boolean s = false;
     public static boolean d = false;
+    public static boolean x = false;
 
     @Override
     public void keyPressed(KeyEvent e) {
@@ -15,6 +16,7 @@ public class Keyboard implements KeyListener {
             case KeyEvent.VK_A: a = true; break;
             case KeyEvent.VK_S: s = true; break;
             case KeyEvent.VK_D: d = true; break;
+            case KeyEvent.VK_X: x = true; break;
         }
     }
 
@@ -25,6 +27,7 @@ public class Keyboard implements KeyListener {
             case KeyEvent.VK_A: a = false; break;
             case KeyEvent.VK_S: s = false; break;
             case KeyEvent.VK_D: d = false; break;
+            case KeyEvent.VK_X: x = false; break;
         }
     }
 

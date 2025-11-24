@@ -3,19 +3,23 @@
 class Junior extends Entity
 {
     Integer two_arm_ascend_speed = 1;
-    Integer two_arm_ascend_cooldown = 2;
+    Integer two_arm_ascend_cooldown = 0;
     Integer two_arm_descend_speed = 1;
-    Integer two_arm_descend_cooldown = 2;
+    Integer two_arm_descend_cooldown = 0;
     
     Integer falling_time = 0;               // Frames since is_falling is true. Used to decide fall damage.
                                             // Is falling when falling off a ledge
     
-    Integer air_time = 0;                   // Frames since a jump started.
+    Integer air_time = -1;                  // Frames since a jump started.
     Integer air_speed_fast = 1;             // A positive or negative value Integer. Used for parabolic movement.
     Integer air_cooldown_fast = 0;          // Used for parabolic movement.
     Integer air_speed_slow = 1;             // A positive or negative value Integer. Used for parabolic movement.
     Integer air_cooldown_slow = 1;          // Used for parabolic movement.
-    
+    Integer horizontal_air_speed = 1;       // Used for parabolic movement.
+    Integer horizontal_air_movement_cooldown = 0;  // Similar to movement_cooldown, but during a jump, vertical and horizontal movement are treated separately.
+                                            // "vertical"_air_movement_cooldown does not exist because movement_cooldown is used for that during jumps.
+    Boolean is_horizontal_jump = false;     // Makes jumps have horizontal movement.
+
     // Integer gravity;                     // A value substracted from air_velocity each succesful movement. 
 
     Boolean is_airborne = false;     // Is true when Junior is in the air and not touching any structure.
@@ -37,7 +41,9 @@ class Junior extends Entity
     // Second structure to be able to climb with both arms.
     public SceneStructure second_arm_structure;     // This holds a structure when Junior is holding two vines.
     public Integer reach_vine_tolerance = 8;        // Distance in pixels at which Junior can Snap to a vine.
-    public Integer touch_ground_tolerance = 8;      // Distance in pixels at which Junior can Snap to a platform.
+    public Integer touch_ground_tolerance = 6;      // Distance in pixels at which Junior can Snap to a platform.
+    public Integer touch_ceiling_tolerance = 6;      // Distance in pixels at which Junior can Snap to a platform.
+    public Integer detect_wall_tolerance = 14;      // Distance in pixels at which Junior can Snap to a platform.
     
 
     // Animation variables. // These booleans and the direction are sent to determine Junior's sprite
@@ -61,27 +67,62 @@ class Junior extends Entity
         Singleton singleton,
         JuniorAnimations animation)
                    {
-        this.position           = position;
-        this.id                 = id;
-        this.height             = height;
-        this.width              = width;
-        this.direction          = direction;
-        this.ground_speed       = ground_speed;
-        this.ground_cooldown    = ground_cooldown;
-        this.ascend_speed       = ascend_speed;
-        this.ascend_cooldown    = ascend_cooldown;
-        this.descend_speed      = descend_speed;
-        this.descend_cooldown   = descend_cooldown;
-        this.fall_speed         = fall_speed;
-        this.fall_cooldown      = fall_cooldown;
-        this.movement_cooldown  = movement_cooldown;
-        this.current_structure  = current_structure;
-        this.singleton          = singleton;
-        this.animation          = animation;
+        this.position                   = position;
+        this.id                         = id;
+        this.height                     = height;
+        this.width                      = width;
+        this.direction                  = direction;
+        this.ground_speed               = ground_speed;
+        this.ground_cooldown            = ground_cooldown;
+        this.ascend_speed               = ascend_speed;
+        this.ascend_cooldown            = ascend_cooldown;
+        this.descend_speed              = descend_speed;
+        this.descend_cooldown           = descend_cooldown;
+        this.fall_speed                 = fall_speed;
+        this.fall_cooldown              = fall_cooldown;
+        this.movement_cooldown          = movement_cooldown;
+        this.current_structure          = current_structure;
+        this.singleton                  = singleton;
+        this.animation                  = animation;
    
         UpdateCurrentStructures();
 
         System.out.println("Junior created through all attributes constructor.");
+        System.out.println("this.air_cooldown_fast = " + this.air_cooldown_fast);
+        System.out.println("this.air_cooldown_slow = " + this.air_cooldown_slow);
+        System.out.println("this.air_speed_fast = " + this.air_speed_fast);
+        System.out.println("this.air_time = " + this.air_time);
+        System.out.println("this.ascend_cooldown = " + this.ascend_cooldown);
+        System.out.println("this.ascend_speed = " + this.ascend_speed);
+        System.out.println("this.change_side_of_vine_movement = " + this.change_side_of_vine_movement);
+        System.out.println("this.descend_cooldown = " + this.descend_cooldown);
+        System.out.println("this.descend_speed = " + this.descend_speed);
+        System.out.println("this.fall_cooldown = " + this.fall_cooldown);
+        System.out.println("this.fall_speed = " + this.fall_speed);
+        System.out.println("this.falling_time = " + this.falling_time);
+        System.out.println("this.ground_cooldown = " + this.ground_cooldown);
+        System.out.println("this.ground_speed = " + this.ground_speed);
+        System.out.println("this.height = " + this.height);
+        System.out.println("this.horizontal_air_movement_cooldown = " + this.horizontal_air_movement_cooldown);
+        System.out.println("this.horizontal_air_speed = " + this.horizontal_air_speed);
+        System.out.println("this.id = " + this.id);
+        System.out.println("this.move_through_vine_cooldown = " + this.move_through_vine_cooldown);
+        System.out.println("this.movement_cooldown = " + this.movement_cooldown);
+        System.out.println("this.reach_out_movement = " + this.reach_out_movement);
+        System.out.println("this.reach_vine_tolerance = " + this.reach_vine_tolerance);
+        System.out.println("this.touch_ground_tolerance = " + this.touch_ground_tolerance);
+        System.out.println("this.two_arm_ascend_cooldown = " + this.two_arm_ascend_cooldown);
+        System.out.println("this.two_arm_ascend_speed = " + this.two_arm_ascend_speed);
+        System.out.println("this.width = " + this.width);
+        System.out.println("this.animation = " + this.animation);
+        System.out.println("this.current_structure = " + this.current_structure);
+        System.out.println("this.direction = " + this.direction);
+        System.out.println("this.is_airborne = " + this.is_airborne);
+        System.out.println("this.is_falling = " + this.is_falling);
+        System.out.println("this.is_horizontal_jump = " + this.is_horizontal_jump);
+        System.out.println("this.position = " + this.position);
+        System.out.println("this.second_arm_structure = " + this.second_arm_structure);
+        System.out.println("this.singleton = " + this.singleton);
 
     }
     
@@ -115,25 +156,188 @@ class Junior extends Entity
         this.current_structure = structure;
     }
 
+    // Controlls vertical parabolic movement acorrding to air_time.
+    // Returns true if jump induced vertical movement was applied; if not, returns false.
+    public Boolean ParabolicMovement()
+    {
+        System.out.println("Enters ParabolicMovement()");
+        if (air_time > -1)
+        {
+            System.out.println("\tair_time > -1");
+            if (air_time < 10)          // air_time -> [0, 10[
+            {
+                System.out.println("\t\tair_time < 10");
+                this.position.y -= this.air_speed_fast;
+                this.movement_cooldown += this.air_cooldown_fast;
+            }
+            else if (air_time < 20)     // air_time -> [10, 20[
+            {
+                System.out.println("\t\tair_time < 20");
+                this.position.y -= this.air_speed_slow;
+                this.movement_cooldown += this.air_cooldown_slow;
+            }
+            else if (air_time < 30)     // air_time -> [20, 30[
+            {
+                System.out.println("\t\tair_time < 30");
+                this.position.y += this.air_speed_slow;
+                this.movement_cooldown += this.air_cooldown_slow;
+            }
+            else                        // air_time -> [30, infinite[
+            {
+                System.out.println("\t\tair_time < 30 was false (else)");
+                this.position.y += this.air_speed_fast;
+                this.movement_cooldown += this.air_cooldown_fast;
+            }
+            air_time ++;
+            return true;
+        }
+        else return false;
+    }
+
+    public Boolean IsHittingCeiling()
+    {
+        System.out.println("Enters IsHittingCeiling()");
+        // Compare Junior's position and hitbox with all structures and find any collision with a ceiling.
+        for (int i = 0; i < singleton.structures.size(); i++)
+        {
+            System.out.println("\tint i = 0; i < singleton.structures.size(); i++ (for cycle) (IsHittingCeiling())");
+            SceneStructure structure = singleton.structures.get(i);
+            
+            if (!structure.is_vine)
+            {
+                System.out.println("\t\t!structure.is_vine");
+                if (IsCeilingAbove(structure))
+                {
+                    System.out.println("Exits IsHittingCeiling() with true");
+                    return true;
+                }   
+            }
+        }
+        return false;
+    }
+    public Boolean IsHittingFloor()
+    {
+        System.out.println("Enters IsHittingFloor()");
+        // Compare Junior's position and hitbox with all structures and find any collision with the top of a platform.
+        for (int i = 0; i < singleton.structures.size(); i++)
+        {
+            System.out.println("\tint i = 0; i < singleton.structures.size(); i++ (for cycle) (IsHittingFloor())");
+            SceneStructure structure = singleton.structures.get(i);
+            
+            if (!structure.is_vine)
+            {
+                System.out.println("\t\t!structure.is_vine");
+                if (IsFloorBelow(structure))
+                {
+                    System.out.println("Exits IsHittingFloor() with true");
+                    return true;
+                }   
+            }
+        }
+        return false;
+    }
+    public Boolean IsHittingLeftWall()
+    {
+        System.out.println("Enters IsHittingLeftWall()");
+        // Compare Junior's position and hitbox with all structures and find any collision with the top of a platform.
+        for (int i = 0; i < singleton.structures.size(); i++)
+        {
+            System.out.println("\tint i = 0; i < singleton.structures.size(); i++ (for cycle) (IsHittingLeftWall())");
+            SceneStructure structure = singleton.structures.get(i);
+            
+            if (!structure.is_vine)
+            {
+                System.out.println("\t\t!structure.is_vine");
+                if (IsWallOnTheLeft(structure))
+                {
+                    System.out.println("Exits IsHittingLeftWall() with true");
+                    return true;
+                }   
+            }
+        }
+        return false;
+    }
+    public Boolean IsHittingRightWall()
+    {
+        System.out.println("Enters IsHittingRightWall()");
+        // Compare Junior's position and hitbox with all structures and find any collision with the top of a platform.
+        for (int i = 0; i < singleton.structures.size(); i++)
+        {
+            System.out.println("\tint i = 0; i < singleton.structures.size(); i++ (for cycle) (IsHittingRightWall())");
+            SceneStructure structure = singleton.structures.get(i);
+            
+            if (!structure.is_vine)
+            {
+                System.out.println("\t\t!structure.is_vine");
+                if (IsWallOnTheRight(structure))
+                {
+                    System.out.println("Exits IsHittingRightWall() with true");
+                    return true;
+                }   
+            }
+        }
+        return false;
+    }
+    // // Returns 0, for no collisions; 1, for ceiling; 2, for floor; 3, for right wall; and 4, for left wall.
+    // public Integer IsHittingPlatforms()
+    // {
+    //     System.out.println("Enters IsHittingFloor()");
+    //     // Compare Junior's position and hitbox with all structures and find any collision with the top of a platform.
+    //     for (int i = 0; i < singleton.structures.size(); i++)
+    //     {
+    //         System.out.println("\tint i = 0; i < singleton.structures.size(); i++ (for cycle) (IsHittingFloor())");
+    //         SceneStructure structure = singleton.structures.get(i);
+            
+    //         if (!structure.is_vine)
+    //         {
+    //             System.out.println("\t\t!structure.is_vine");
+    //             if (IsFloorBelow(structure))
+    //             {
+    //                 System.out.println("Exits IsHittingFloor() with true");
+    //                 return true;
+    //             }   
+    //         }
+    //     }
+    //     return false;
+    // }
+
     public Vector2D Fall()
     {
         System.out.println("Enters Fall()");
+        // TODO: is horizontal_air_movement_cooldown never increased?
+        if ((this.air_time > -1) && (this.horizontal_air_movement_cooldown > 0)) // Move only when enough frames have passed since the last movement.
+        {
+            System.out.println("\tthis.horizontal_air_movement_cooldown > 0");
+            this.horizontal_air_movement_cooldown --;   
+        }
+        else if (is_horizontal_jump)    // Moves horizontally when necessary.
+        {
+            if (direction == Direction.RIGHT)   {this.position.x += horizontal_air_speed;}
+            else                                {this.position.x -= horizontal_air_speed;}
+        }
         if (this.movement_cooldown > 0) // Move only when enough frames have passed since the last movement.
         {
             System.out.println("\tthis.movement_cooldown > 0");
             this.movement_cooldown --;   
             return position;    
         }
+        // Check for ceiling collisions.
+        if (air_time > -1 && IsHittingCeiling())    // If is jumping, rising, and hit a ceiling, skip the rising section of the jump.
+        {
+            air_time = 20;
+        }
         // Check for collisions.    Collisions stop falling.
-        if (UpdateCurrentStructures())  // UpdateCurrentStructures() finds structures. Returns true if any are found.
+        if (UpdateCurrentStructures(air_time>-1 && air_time < 20))  // UpdateCurrentStructures() finds structures. Returns true if any are found.
         {
             System.out.println("\tUpdateCurrentStructures() == true");
             EnterStructure(current_structure);  // Snaps Junior to the found structure.
                                                 // This functions reassigns current_structure = current_structure unnecessarily.
             this.is_airborne = false;
             this.is_falling = false;
+            this.air_time = -1;
+            this.is_horizontal_jump = false;
         }
-        else    // if no structure was found, keep falling.
+        else if (!ParabolicMovement())    // if no structure was found, keep falling.
         {
             this.position.y = this.position.y + this.fall_speed;
             this.movement_cooldown += this.fall_cooldown;
@@ -197,6 +401,12 @@ class Junior extends Entity
         this.animation = JuniorAnimations.STANDING_ANIMATION;
         this.width = JuniorSizes.GROUNDED.value;
     }
+        public void SetJumpingAnimation()
+    {
+        System.out.println("SetJumpingAnimation()");
+        this.animation = JuniorAnimations.JUMPING_ANIMATION;
+        this.width = JuniorSizes.GROUNDED.value;
+    }
     
 
     // This is true if the horizontal distance to a vine is small enough and if Junior's position.y is within the top and bottom of the vine.
@@ -208,15 +418,34 @@ class Junior extends Entity
     }
     public Boolean IsVineOnTheRight(SceneStructure structure)
     {
-        return Utils.Distance(structure.right_limit, this.position.x + this.width) <= reach_vine_tolerance
+        return Utils.Distance(structure.left_limit, this.position.x + this.width) <= reach_vine_tolerance
             && this.position.y >= structure.top_limit
             && this.position.y <= structure.bottom_limit;
     }
     public Boolean IsFloorBelow(SceneStructure structure)
     {
-        return Utils.Distance(structure.top_limit, this.position.y + this.height) <= touch_ground_tolerance
+        return Utils.Distance(structure.top_limit, this.position.y + this.height - touch_ground_tolerance) <= touch_ground_tolerance
             && this.position.x >= structure.left_limit - this.width
             && this.position.x <= structure.right_limit;
+    }
+    public Boolean IsCeilingAbove(SceneStructure structure)
+    {
+        return Utils.Distance(structure.bottom_limit, this.position.y + touch_ceiling_tolerance) <= touch_ceiling_tolerance
+            && this.position.x >= structure.left_limit - this.width
+            && this.position.x <= structure.right_limit;
+    }
+    public Boolean IsWallOnTheRight(SceneStructure structure)
+    {
+        return Utils.Distance(structure.left_limit, this.position.x + this.width) <= detect_wall_tolerance
+            && this.position.y >= structure.top_limit - this.height
+            && this.position.y <= structure.bottom_limit;
+    }
+    public Boolean IsWallOnTheLeft(SceneStructure structure)
+    {
+        System.out.println("Utils.Distance(structure.right_limit, this.position.x) = " + Utils.Distance(structure.right_limit, this.position.x));
+        return Utils.Distance(structure.right_limit, this.position.x) <= detect_wall_tolerance
+            && this.position.y >= structure.top_limit - this.height
+            && this.position.y <= structure.bottom_limit;
     }
     
 
@@ -224,7 +453,8 @@ class Junior extends Entity
     // Called when reaching out of a vine and when dropping from a vine.
     // Updates current_structure and second_arm_structure.
     // Returnes true if any structures are found; false, otherwise.
-    public Boolean UpdateCurrentStructures()
+    public Boolean UpdateCurrentStructures(){return UpdateCurrentStructures(false);}
+    public Boolean UpdateCurrentStructures(Boolean ignore_floors)
     {
         System.out.println("Enters UpdateCurrentStructures()");
         Integer index_of_structure_on_the_left = -1;
@@ -259,7 +489,7 @@ class Junior extends Entity
             else
             {
                 System.out.println("\t\tstructure.is_vine is false (else)");
-                if (IsFloorBelow(structure))
+                if (!ignore_floors && IsFloorBelow(structure))
                 {
                     index_of_structure_below = i;
                 }
@@ -319,124 +549,156 @@ class Junior extends Entity
     {
         Boolean found_vine = null;  // Used to know if UpdateCurrentStructures() was true after moving.
         System.out.println("Enters ChangeGrip()");
-        if (second_arm_structure == null && animation == JuniorAnimations.GRIPPING_ANIMATION) // If hanging from a single vine closely.
+        if (animation == JuniorAnimations.EXTENDING_ARM_ANIMATION || !(this.singleton.right_is_pressed && IsHittingRightWall()) && !(this.singleton.left_is_pressed && IsHittingLeftWall()))
         {
-            System.out.println("\tsecond_arm_structure == null");
-            if (direction == Direction.RIGHT)   // Junior is facing RIGHT when on the left side of a vine and vice versa.
+
+            if (second_arm_structure == null && animation == JuniorAnimations.GRIPPING_ANIMATION) // If hanging from a single vine closely.
             {
-                System.out.println("\t\tdirection == Direction.RIGHT");
-                if (this.singleton.right_is_pressed)    // If right is pressed, change sides.
+                System.out.println("\tsecond_arm_structure == null");
+                if (direction == Direction.RIGHT)   // Junior is facing RIGHT when on the left side of a vine and vice versa.
                 {
-                    System.out.println("\t\t\tthis.singleton.right_is_pressed");
-                    this.position.x = this.position.x + this.change_side_of_vine_movement;
-                    this.movement_cooldown += this.move_through_vine_cooldown;
-                    direction = Direction.LEFT;         // Change to ReverseDirection() ?
-                    found_vine = true;      // found_vine must be true because this movement doesn't cause dropping or searching of new vines.
-                    // animation = JuniorAnimations.GRIPPING_ANIMATION;
-                    // width = JuniorSizes.HANGING.value;
+                    System.out.println("\t\tdirection == Direction.RIGHT");
+                    if (this.singleton.right_is_pressed)    // If right is pressed, change sides.
+                    {
+                        System.out.println("\t\t\tthis.singleton.right_is_pressed");
+                        this.position.x = this.position.x + this.change_side_of_vine_movement;
+                        this.movement_cooldown += this.move_through_vine_cooldown;
+                        direction = Direction.LEFT;         // Change to ReverseDirection() ?
+                        found_vine = true;      // found_vine must be true because this movement doesn't cause dropping or searching of new vines.
+                        // animation = JuniorAnimations.GRIPPING_ANIMATION;
+                        // width = JuniorSizes.HANGING.value;
+                    }
+                    if (this.singleton.left_is_pressed)     // If left is pressed, extend arm and look for another vine.
+                    {
+                        System.out.println("\t\t\tthis.singleton.left_is_pressed");
+                        this.position.x = this.position.x - this.reach_out_movement;
+                        this.movement_cooldown += this.move_through_vine_cooldown;
+                        direction = Direction.LEFT;
+                        animation = JuniorAnimations.EXTENDING_ARM_ANIMATION;
+                        width = JuniorSizes.REACHING.value;
+                        found_vine = UpdateCurrentStructures();
+                    }
                 }
-                if (this.singleton.left_is_pressed)     // If left is pressed, extend arm and look for another vine.
+                else if (direction == Direction.LEFT)   // Junior is facing LEFT when on the right side of a vine and vice versa.
                 {
-                    System.out.println("\t\t\tthis.singleton.left_is_pressed");
-                    this.position.x = this.position.x - this.reach_out_movement;
-                    this.movement_cooldown += this.move_through_vine_cooldown;
-                    direction = Direction.LEFT;
-                    animation = JuniorAnimations.EXTENDING_ARM_ANIMATION;
-                    width = JuniorSizes.REACHING.value;
-                    found_vine = UpdateCurrentStructures();
+                    System.out.println("\t\tdirection == Direction.LEFT");
+                    if (this.singleton.right_is_pressed)    // If right is pressed, extend arm and look for another vine.
+                    {
+                        System.out.println("\t\t\tthis.singleton.right_is_pressed");
+                        // this.position.x = this.position.x;  // Doesn't move, only extends hitbox.
+                        this.movement_cooldown += this.move_through_vine_cooldown;
+                        direction = Direction.RIGHT;
+                        animation = JuniorAnimations.EXTENDING_ARM_ANIMATION;
+                        width = JuniorSizes.REACHING.value;
+                        found_vine = UpdateCurrentStructures();
+                    }
+                    if (this.singleton.left_is_pressed)     // If left is pressed, change sides.
+                    {
+                        System.out.println("\t\t\tthis.singleton.left_is_pressed");
+                        this.position.x = this.position.x - this.change_side_of_vine_movement;
+                        this.movement_cooldown += this.move_through_vine_cooldown;
+                        direction = Direction.RIGHT;
+                        found_vine = true;      // found_vine must be true because this movement doesn't cause dropping or searching of new vines.
+                        // animation = JuniorAnimations.GRIPPING_ANIMATION;
+                        // width = JuniorSizes.HANGING.value;
+                    }
                 }
             }
-            else if (direction == Direction.LEFT)   // Junior is facing LEFT when on the right side of a vine and vice versa.
+            else    // If Junior is hanging from two vines or is not holding closely to a vine (arms extended)
             {
-                System.out.println("\t\tdirection == Direction.LEFT");
-                if (this.singleton.right_is_pressed)    // If right is pressed, extend arm and look for another vine.
+                System.out.println("\tsecond_arm_structure was not == null or animation was not GRIPPING_ANIMATION (else)");
+                if (this.singleton.right_is_pressed)    // If right is pressed, move to the right vine and UpdateCurrentStructures().
                 {
-                    System.out.println("\t\t\tthis.singleton.right_is_pressed");
-                    // this.position.x = this.position.x;  // Doesn't move, only extends hitbox.
+                    System.out.println("\t\tthis.singleton.right_is_pressed");
+                    this.position.x = this.position.x + this.reach_out_movement;
                     this.movement_cooldown += this.move_through_vine_cooldown;
                     direction = Direction.RIGHT;
-                    animation = JuniorAnimations.EXTENDING_ARM_ANIMATION;
-                    width = JuniorSizes.REACHING.value;
+                    animation = JuniorAnimations.GRIPPING_ANIMATION;
+                    width = JuniorSizes.HANGING.value;
                     found_vine = UpdateCurrentStructures();
                 }
-                if (this.singleton.left_is_pressed)     // If left is pressed, change sides.
+                if (this.singleton.left_is_pressed)     // If left is pressed, stay in the left vine and UpdateCurrentStructures().
                 {
-                    System.out.println("\t\t\tthis.singleton.left_is_pressed");
-                    this.position.x = this.position.x - this.change_side_of_vine_movement;
+                    System.out.println("\t\tthis.singleton.left_is_pressed");
+                    // this.position.x = 
                     this.movement_cooldown += this.move_through_vine_cooldown;
-                    direction = Direction.RIGHT;
-                    found_vine = true;      // found_vine must be true because this movement doesn't cause dropping or searching of new vines.
-                    // animation = JuniorAnimations.GRIPPING_ANIMATION;
-                    // width = JuniorSizes.HANGING.value;
+                    direction = Direction.LEFT;
+                    animation = JuniorAnimations.GRIPPING_ANIMATION;
+                    width = JuniorSizes.HANGING.value;
+                    found_vine = UpdateCurrentStructures();
+                }
+                if (!found_vine)
+                {
+                    System.out.println("\tdidn't find another vine after moving.");
                 }
             }
         }
-        else    // If Junior is hanging from two vines or is not holding closely to a vine (arms extended)
+        else
         {
-            System.out.println("\tsecond_arm_structure was not == null or animation was not GRIPPING_ANIMATION (else)");
-            if (this.singleton.right_is_pressed)    // If right is pressed, move to the right vine and UpdateCurrentStructures().
-            {
-                System.out.println("\t\tthis.singleton.right_is_pressed");
-                this.position.x = this.position.x + this.reach_out_movement;
-                this.movement_cooldown += this.move_through_vine_cooldown;
-                direction = Direction.RIGHT;
-                animation = JuniorAnimations.GRIPPING_ANIMATION;
-                width = JuniorSizes.HANGING.value;
-                found_vine = UpdateCurrentStructures();
-            }
-            if (this.singleton.left_is_pressed)     // If left is pressed, stay in the left vine and UpdateCurrentStructures().
-            {
-                System.out.println("\t\tthis.singleton.left_is_pressed");
-                // this.position.x = 
-                this.movement_cooldown += this.move_through_vine_cooldown;
-                direction = Direction.LEFT;
-                animation = JuniorAnimations.GRIPPING_ANIMATION;
-                width = JuniorSizes.HANGING.value;
-                found_vine = UpdateCurrentStructures();
-            }
-            if (!found_vine)
-            {
-                System.out.println("\tdidn't find another vine after moving.");
-            }
+            return true;
         }
         System.out.println("Exits ChangeGrip() with " + found_vine);
         return found_vine;
     }
 
+
+    // Makes Junior get into HANGING vine animation if ascend or descend are used while extending an arm but not holding another vine.
+    // Checks that the animation is EXTENDING_ARM_ANIMATION.
+    public void AutoCorrectAnimationOnAscendAndDescend()
+    {
+        if (animation == JuniorAnimations.EXTENDING_ARM_ANIMATION)
+        {
+            SetHangingAnimation();
+            if (IsVineOnTheLeft(current_structure))
+            {
+                this.direction = Direction.LEFT;    
+            }
+            else
+            {
+                this.direction = Direction.RIGHT;
+                this.position.x += reach_out_movement;    // Only right side needs position correction since position points at the top left corner of an Entity. 
+            }
+        }
+    }
     // Vertical movement. Only on vines.
     public Boolean AscendAndDescend()
     {
-        if (second_arm_structure != null)   // If he's holding two vines.
+        // If Junior is not trying to pass a ceiling or a floor.
+        if (!(this.singleton.up_is_pressed && IsHittingCeiling()) && !(this.singleton.down_is_pressed && IsHittingFloor()))
         {
-            System.out.println("\t\tsecond_arm_structure != null");
-            if (this.singleton.up_is_pressed)
+            if (second_arm_structure != null)   // If he's holding two vines.
             {
-                System.out.println("\t\t\tthis.singleton.up_is_pressed");
-                this.position.y = this.position.y - this.two_arm_ascend_speed;
-                this.movement_cooldown += this.two_arm_ascend_cooldown;
+                System.out.println("\tsecond_arm_structure != null");
+                if (this.singleton.up_is_pressed)
+                {
+                    System.out.println("\t\tthis.singleton.up_is_pressed");
+                    this.position.y = this.position.y - this.two_arm_ascend_speed;
+                    this.movement_cooldown += this.two_arm_ascend_cooldown;
+                }
+                if (this.singleton.down_is_pressed)
+                {
+                    System.out.println("\t\tthis.singleton.down_is_pressed");
+                    this.position.y = this.position.y + this.two_arm_descend_speed;
+                    this.movement_cooldown += this.two_arm_descend_cooldown;
+                }
+                ReverseDirection(); // For animation purpose.
             }
-            if (this.singleton.down_is_pressed)
+            else if (CurrentStructureIsVine())   // If he's holding only one vine.
             {
-                System.out.println("\t\t\tthis.singleton.down_is_pressed");
-                this.position.y = this.position.y + this.two_arm_descend_speed;
-                this.movement_cooldown += this.two_arm_descend_cooldown;
-            }
-            ReverseDirection(); // For animation purpose.
-        }
-        else if (CurrentStructureIsVine())   // If he's holding only one vine.
-        {
-            System.out.println("\t\tCurrentStructureIsVine()");
-            if (this.singleton.up_is_pressed)
-            {
-                System.out.println("\t\t\tthis.singleton.up_is_pressed");
-                this.position.y = this.position.y - this.ascend_speed;
-                this.movement_cooldown += this.ascend_cooldown;
-            }
-            if (this.singleton.down_is_pressed)
-            {
-                System.out.println("\t\t\tthis.singleton.down_is_pressed");
-                this.position.y = this.position.y + this.descend_speed;
-                this.movement_cooldown += this.descend_cooldown;
+                AutoCorrectAnimationOnAscendAndDescend();
+                System.out.println("\tCurrentStructureIsVine()");
+                if (this.singleton.up_is_pressed)
+                {
+                    System.out.println("\t\tthis.singleton.up_is_pressed");
+                    this.position.y = this.position.y - this.ascend_speed;
+                    this.movement_cooldown += this.ascend_cooldown;
+                }
+                if (this.singleton.down_is_pressed)
+                {
+                    System.out.println("\t\tthis.singleton.down_is_pressed");
+                    this.position.y = this.position.y + this.descend_speed;
+                    this.movement_cooldown += this.descend_cooldown;
+                }
             }
         }
         return UpdateCurrentStructures();
@@ -456,11 +718,13 @@ class Junior extends Entity
         // Chooses a falling animation depending on the last one
         if (animation == JuniorAnimations.GRIPPING_ANIMATION)
         {
-            animation = JuniorAnimations.JUMPING_ANIMATION;
+            // animation = JuniorAnimations.JUMPING_ANIMATION;
+            SetJumpingAnimation();
         }
         if (animation == JuniorAnimations.WALKING_1_ANIMATION || animation == JuniorAnimations.WALKING_2_ANIMATION)
         {
-            animation = JuniorAnimations.STANDING_ANIMATION;
+            // animation = JuniorAnimations.STANDING_ANIMATION;
+            SetStandingAnimation();
         }
     }
 
@@ -493,6 +757,36 @@ class Junior extends Entity
         return false;
     }
 
+    // Checks if jumping is possible.
+    // If possible, initiates a jump that will be executed for many following frames until reaching a structure.
+    public Boolean JumpTriggerer()
+    {
+        System.out.println("Enters JumpTriggerer()");
+        if (!CurrentStructureIsVine())   // If he's on the ground.
+        {
+            System.out.println("\t!CurrentStructureIsVine()");
+            if (this.singleton.right_is_pressed)
+            {
+                System.out.println("\t\tthis.singleton.right_is_pressed");
+                this.direction = Direction.RIGHT;
+                is_horizontal_jump = true;
+            }
+            if (this.singleton.left_is_pressed)
+            {
+                System.out.println("\t\tthis.singleton.left_is_pressed");
+                this.direction = Direction.LEFT;
+                is_horizontal_jump = true;
+            }
+            is_airborne = true;
+            air_time = 0;
+            // is_falling = true;
+            SetJumpingAnimation();
+            return true;
+        }
+        return false;
+    }
+
+
 
 
     // Moves according to direction, checks end of structures.
@@ -508,8 +802,14 @@ class Junior extends Entity
         
         System.out.println("this.direction = " + this.direction);
         
+
+        // // If jump is pressed.
+        // if (this.singleton.jump_is_pressed)
+        // {
+        //     System.out.println("\tthis.singleton.jump_is_pressed");
+        // }
         // Can only act when on the ground or in a vine.
-        if ((is_airborne || is_falling))
+        if ((is_airborne || is_falling || (this.singleton.jump_is_pressed && JumpTriggerer())))
         {
             System.out.println("\tis_airborne || is_falling");
             // TODO: add jumping logic.
@@ -563,7 +863,7 @@ class Junior extends Entity
                 found_structures = Walk();
             }
         }
-
+        
         // After moving, check for falling off structures.
         // Direction current_structure_end_of_structure_direction = HasReachedEndOfStructure(current_structure);        //Old method
         // Direction right_vine_end_of_structure_direction = HasReachedEndOfStructure(second_arm_structure);            //Old method
@@ -582,6 +882,55 @@ class Junior extends Entity
         System.out.println("Reached end of Move()");
         return position;
     }
+
+
+
+    public void TriggerDeath()
+    {
+        // TODO: make a death animation. Similar to jump logic?
+        System.out.println("Enters TriggerDeath()");
+    }
+
+    public Boolean EntitiesCollide(Entity entity_1, Entity entity_2) 
+    {
+        Integer delta_y = entity_1.position.y - entity_2.position.y;
+        Integer delta_x = entity_1.position.x - entity_2.position.x;
+        return (delta_y >= -1*entity_1.height && delta_y <= entity_2.height) && (delta_x >= -1*entity_1.width && delta_x <= entity_2.width);
+    }
+
+    // Compares Junior's position and hitbox with all entities and act based on the entity type.
+    public Boolean UpdateCollisions()
+    {
+        Boolean found_fruit = false;
+        System.out.println("Enters UpdateCollisions()");
+        for (int i = 0; i < singleton.entities.size(); i++)
+        {
+            System.out.println("\tint i = 0; i < singleton.entities.size(); i++ (for cycle) (UpdateCollisions())");
+            Entity entity = singleton.entities.get(i);
+            if (EntitiesCollide(this, entity))
+            {
+                if (entity instanceof Snapjaw)
+                {
+                    System.out.println("\t\t\tentity instanceof Snapjaw");
+                    TriggerDeath();
+                    return true;
+                }
+                if (entity instanceof Fruit)
+                {
+                    Fruit fruit = (Fruit) entity;
+                    System.out.println("\t\t\tentity instanceof Fruit");
+                    singleton.score += fruit.points;
+                    // TODO: add some logic to add a visual cue or sound or to signal to refresh the screen when gaining points.
+                    found_fruit = true;
+                    fruit.is_falling = true;
+                }
+
+            }
+        }
+        return found_fruit;
+    }
+
+
 
     public void ShowPosition()
     {

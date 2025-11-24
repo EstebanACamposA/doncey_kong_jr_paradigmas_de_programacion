@@ -44,14 +44,19 @@ public class Main   // Use 60 fps to better adjust speeds?
 
         // Create SceneStructure objects for the platforms and vines
         SceneStructure vine_1           = new SceneStructure(110, 110, 119, 376, singleton.GenerateID(), true);
+        SceneStructure vine_2           = new SceneStructure(133, 133, 119, 376, singleton.GenerateID(), true);
         SceneStructure platform_1       = new SceneStructure(200, 10, 250, 376, singleton.GenerateID(), false);
+        SceneStructure platform_2       = new SceneStructure(105, 55, 220, 230, singleton.GenerateID(), false);
         singleton.structures.add(vine_1);
+        singleton.structures.add(vine_2);
         singleton.structures.add(platform_1);
+        singleton.structures.add(platform_2);
 
         // Example: create a Snapjaw
         // public Snapjaw(Integer y, Integer id, Direction direction, SceneStructure current_structure, Boolean is_blue)
         Snapjaw snapjaw = new Snapjaw(220, singleton.GenerateID(), Direction.DOWN, vine_1, false);
-
+        singleton.entities.add(snapjaw);
+        
 
 
         // Instantiate Junior.
@@ -81,7 +86,7 @@ public class Main   // Use 60 fps to better adjust speeds?
         // this.movement_cooldown  = movement_cooldown;
         // this.current_structure  = current_structure;
         // this.singleton  = singleton;
-        Junior dk_junior = new Junior(new Vector2D(96, 200), singleton.GenerateID(), 16, 14, Direction.RIGHT, 1, 1, 1, 2, 1, 0, 1, 0, 0, vine_1, singleton, JuniorAnimations.GRIPPING_ANIMATION);
+        Junior dk_junior = new Junior(new Vector2D(96, 200), singleton.GenerateID(), 16, 14, Direction.RIGHT, 1, 1, 1, 2, 2, 0, 1, 0, 0, vine_1, singleton, JuniorAnimations.GRIPPING_ANIMATION);
 
         final Integer TICK_MS = 50; // Period in ms. -> 20 frames per second.
         while (true)
@@ -91,13 +96,13 @@ public class Main   // Use 60 fps to better adjust speeds?
             singleton.up_was_pressed        = singleton.up_is_pressed; 
             singleton.right_was_pressed     = singleton.right_is_pressed; 
             singleton.down_was_pressed      = singleton.down_is_pressed; 
-            // singleton.jump_was_pressed   = singleton.jump_is_pressed;
+            singleton.jump_was_pressed      = singleton.jump_is_pressed;
             
             singleton.left_is_pressed       = Keyboard.a;
             singleton.up_is_pressed         = Keyboard.w;
             singleton.right_is_pressed      = Keyboard.d;
             singleton.down_is_pressed       = Keyboard.s;
-            // singleton.jump_is_pressed    = Keyboard.x;
+            singleton.jump_is_pressed       = Keyboard.x;
             /////// RECEIVE KEYBOARD LOGIC ///////
 
 
@@ -163,3 +168,14 @@ public class Main   // Use 60 fps to better adjust speeds?
 //                 }
 //             }
 
+
+
+
+
+// Y que se guarde en un array de structs de largo "count"
+// {
+//     int x;
+//     int y;
+//     int sprite;
+//     int direction;
+// }

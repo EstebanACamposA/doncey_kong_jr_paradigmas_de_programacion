@@ -148,6 +148,8 @@ class Snapjaw extends Entity
         return position;
     }
 
+    // TODO: add logic to kill snapjaws when they collide with a falling fruit. Maybe it's necessary to move collision logic to the singleton or the Entity class. 
+
     public void ShowPosition()
     {
         System.out.println("Snapjaw (" + this.id + ") at (" + this.position.x + ", " + this.position.y + ")");

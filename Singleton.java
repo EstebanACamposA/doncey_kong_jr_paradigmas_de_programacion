@@ -18,10 +18,13 @@ public class Singleton
     public Boolean down_was_pressed = false;
     public Boolean jump_was_pressed = false;
 
+    public Integer score = 0;
+
     public Singleton(Integer last_id, ArrayList<SceneStructure> structures, ArrayList<Entity> entities)
     {
         this.last_id = last_id;
         this.structures = structures;
+        this.entities = entities;
         
         this.left_is_pressed = false;
         this.up_is_pressed = false;
